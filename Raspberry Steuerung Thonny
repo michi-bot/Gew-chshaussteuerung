@@ -1,0 +1,93 @@
+import machine
+import utime
+import dht
+
+# Initialize GPIO pins
+sensor = dht.DHT11(machine.Pin(16))
+light_relay = machine.Pin(12, machine.Pin.OUT, value=0)  # Initially OFF for NC
+heating_relay = machine.Pin(13, machine.Pin.OUT, value=1)  # Initially OFF for NC
+motor_relay = machine.Pin(15, machine.Pin.OUT, value=0)  # Initially OFF for NC
+humidifier_relay = machine.Pin(11, machine.Pin.OUT, value=1)  # Initially OFF for NC, which means the humidifier is ON
+trig_pin = machine.Pin(7, machine.Pin.OUT)
+echo_pin = machine.Pin(6, machine.Pin.IN)
+moisture_sensor_pin = machine.ADC(machine.Pin(26))  # Capacitive moisture sensor
+
+# Timing configurations (off and on durations in seconds)
+light_timing = (10, 10)  # Light off for 60 seconds, on for 10 seconds
+motor_timing = (10, 10)  # Motor off for 60 seconds, on for 10 seconds
+
+# Initial relay states for timed devices
+light_state = {"on": False, "last_switch": utime.ticks_ms()}
+motor_state = {"on": False, "last_switch": utime.ticks_ms()}
+
+# Target temperature and humidity for heating and humidifying
+target_temperature = 35
+target_humidity = 35
+
+# Function to measure distance using HC-SR04
+def measure_distance():
+    trig_pin.value(0)
+    utime.sleep_us(2)
+    trig_pin.value(1)
+    utime.sleep_us(10)
+    trig_pin.value(0)
+    while echo_pin.value() == 0:
+        signal_off = utime.ticks_us()
+    while echo_pin.value() == 1:
+        signal_on = utime.ticks_us()
+    time_passed = signal_on - signal_off
+    distance = (time_passed * 0.0343) / 2
+    return distance
+
+# Function to read moisture level from the sensor
+def read_moisture():
+    moisture_value = moisture_sensor_pin.read_u16()
+    return moisture_value
+
+# Function to update the state of a relay based on timing
+def update_relay(relay, timing, state):
+    current_time = utime.ticks_ms()
+    off_time, on_time = timing
+    if state["on"] and utime.ticks_diff(current_time, state["last_switch"]) >= on_time * 1000:
+        relay.value(1)  # Turn off relay for NC
+        state["on"] = False
+        state["last_switch"] = current_time
+    elif not state["on"] and utime.ticks_diff(current_time, state["last_switch"]) >= off_time * 1000:
+        relay.value(0)  # Turn on relay for NC
+        state["on"] = True
+        state["last_switch"] = current_time
+
+while True:
+    # Update light and motor relays based on timing
+    update_relay(light_relay, light_timing, light_state)
+    update_relay(motor_relay, motor_timing, motor_state)
+
+    # Read moisture level
+    moisture_level = read_moisture()
+    print("Moisture Level:", moisture_level)
+    try:
+        # Read temperature and humidity from DHT11 sensor
+        sensor.measure()
+        temp = sensor.temperature()
+        hum = sensor.humidity()
+        print('Temperature: {}°C, Humidity: {}%'.format(temp, hum))
+
+        # Control heating element based on temperature
+        if temp < target_temperature:
+            heating_relay.value(0)  # Turn on heating element (relay in NC state)
+        else:
+            heating_relay.value(1)  # Turn off heating element (relay in NC state)
+
+        # Control humidifier based on humidity
+        if hum < target_humidity:
+            humidifier_relay.value(1)  # Keep humidifier OFF (relay in NC state means ON for the device)
+        else:
+            humidifier_relay.value(0)  # Turn humidifier ON (relay in NC state means OFF for the device)
+
+    except OSError as e:
+        print('Failed to read sensor.')
+
+    # Measure distance using HC-SR04
+    distance = measure_distance()
+    print('Distance: {:.2f} cm'.format(distance))
+    utime.sleep(2)  # Delay before the next loop iteration
