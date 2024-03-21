@@ -24,3 +24,4 @@ Das Ziel dieses Projekts ist es, ein effizientes und benutzerfreundliches System
 ## Software
 
 Der Code für das Projekt ist in Python geschrieben und nutzt die Mikrocontroller-Programmierschnittstelle für die Hardwaresteuerung. 
+Die json-Dateien wurden mit EASYEDA erstellt.
