@@ -1,0 +1,26 @@
+# Gewächshaussteuerungssystem
+
+Dieses Repository enthält den Quellcode und die Dokumentation für ein automatisiertes Gewächshaussteuerungssystem, das entwickelt wurde, um ideale Wachstumsbedingungen für Pflanzen durch die Kontrolle von Umgebungsbedingungen wie Temperatur, Luftfeuchtigkeit und Bewässerung zu schaffen.
+
+## Projektübersicht
+
+Das Ziel dieses Projekts ist es, ein effizientes und benutzerfreundliches System zu entwickeln, das die Pflege von Pflanzen in einem Gewächshaus automatisiert. Durch den Einsatz moderner Mikrocontroller und Sensortechnologie kann unser System kontinuierlich die Bedingungen im Gewächshaus überwachen und entsprechend reagieren, um ein optimales Wachstumsumfeld zu gewährleisten.
+
+## Funktionen
+
+- **Temperaturkontrolle**: Automatische Anpassung der Temperatur basierend auf voreingestellten Grenzwerten.
+- **Feuchtigkeitsregulierung**: Überwachung und Anpassung der Luftfeuchtigkeit, um ein gesundes Wachstum zu fördern.
+- **Automatisierte Bewässerung**: Basierend auf dem Feuchtigkeitsgehalt des Bodens wird die Bewässerung gesteuert, um eine Über- oder Unterwässerung zu vermeiden.
+- **Benutzerfreundliches Interface**: Ermöglicht eine einfache Konfiguration und Überwachung des Systems.
+
+## Hardware
+
+- Mikrocontroller (z.B. Raspberry Pi Pico)
+- Temperatur- und Feuchtigkeitssensor (DHT11)
+- Bodenfeuchtigkeitssensor
+- Wasserpumpe
+- Weitere Komponenten und ihre Verbindungen sind im Schaltplan und PCB-Layout im Repository dargestellt.
+
+## Software
+
+Der Code für das Projekt ist in Python geschrieben und nutzt die Mikrocontroller-Programmierschnittstelle für die Hardwaresteuerung. 
